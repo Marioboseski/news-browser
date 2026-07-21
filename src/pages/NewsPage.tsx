@@ -25,7 +25,7 @@ const NewsPage = () => {
         <option value="business">Business</option>
       </select>
 
-      <div>
+      <div className="grid grid-cols-1 justify-items-center gap-2 p-3 md:grid-cols-3 md:gap-3">
         {news.map((newsItem) => (
           <NewsCard key={newsItem.id} news={newsItem} />
         ))}
