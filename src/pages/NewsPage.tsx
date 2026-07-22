@@ -9,6 +9,7 @@ const NewsPage = () => {
   const [news, setNews] = useState<News[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -17,9 +18,15 @@ const NewsPage = () => {
 
       try {
         const data = await guardianApi(section, page);
+        
+        const results = data.response.results;
+
+        if (data.response.currentPage >= data.response.pages) {
+          setHasMore(false);
+        }
 
         setNews((prevNews) => {
-          return [...prevNews, ...data.response.results];
+          return [...prevNews, ...results];
         });
 
       } catch (error) {
@@ -39,7 +46,7 @@ const NewsPage = () => {
 
       if (!entry.isIntersecting) return;
 
-      if(isLoading) return;
+      if (isLoading || !hasMore) return;
 
       setPage((prevPage) => prevPage + 1);
     });
@@ -51,11 +58,12 @@ const NewsPage = () => {
       observer.disconnect();
     }
 
-  }, [isLoading]);
+  }, [isLoading, hasMore]);
 
   const handleSectionChange = (section: string) => {
     setNews([]);
     setPage(1);
+    setHasMore(true);
     setSection(section);
   }
 
@@ -73,6 +81,8 @@ const NewsPage = () => {
           <NewsCard key={newsItem.id} news={newsItem} />
         ))}
       </div>
+      {isLoading && <p className="text-3xl text-red-500">Loading more news</p>}
+      {!hasMore && <p className=" text-center text-3xl text-red-500">No more news</p>}
       <div ref={loaderRef}>
       </div>
     </div>
