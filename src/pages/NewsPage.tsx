@@ -10,6 +10,8 @@ const NewsPage = () => {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -17,8 +19,7 @@ const NewsPage = () => {
       setIsLoading(true);
 
       try {
-        const data = await guardianApi(section, page);
-        
+        const data = await guardianApi(section, searchQuery, page);
         const results = data.response.results;
 
         if (data.response.currentPage >= data.response.pages) {
@@ -37,7 +38,7 @@ const NewsPage = () => {
       }
     }
     fetchNews();
-  }, [section, page]);
+  }, [section, searchQuery, page]);
 
   useEffect(() => {
 
@@ -65,10 +66,25 @@ const NewsPage = () => {
     setPage(1);
     setHasMore(true);
     setSection(section);
+    setSearch("");
+    setSearchQuery("");
+  }
+
+  const handleSearch = () => {
+    setNews([]);
+    setPage(1);
+    setHasMore(true);
+    setSearchQuery(search);
   }
 
   return (
-    <div>
+    <div className="p-3">
+      <input type="text"
+        value={search}
+        placeholder="Search"
+        onChange={(e) => setSearch(e.target.value)}
+        className="border-2 border-gray-400 w-full max-w-xs" />
+      <button onClick={handleSearch} className="border border-black">Search</button>
       <select onChange={(e) => handleSectionChange(e.target.value)}>
         <option value="technology">Techology</option>
         <option value="sport">Sport</option>
