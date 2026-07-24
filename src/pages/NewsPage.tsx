@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { guardianApi } from "../api/guardianApi";
 import NewsCard from "../components/NewsCard";
 import type { News } from "../types/types";
+import { Link } from "react-router-dom";
 
 const NewsPage = () => {
 
@@ -12,6 +13,7 @@ const NewsPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [ bookmarks, setBookmarks ] = useState<News[]>([]);
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -61,6 +63,16 @@ const NewsPage = () => {
 
   }, [isLoading, hasMore]);
 
+  useEffect(() => {
+    const storedBookmarks = localStorage.getItem("bookmarkNews");
+    
+    if(!storedBookmarks) return;
+
+    const parsedBookmarks = JSON.parse(storedBookmarks);
+
+    setBookmarks(parsedBookmarks);
+  },[]);
+
   const handleSectionChange = (section: string) => {
     setNews([]);
     setPage(1);
@@ -77,6 +89,28 @@ const NewsPage = () => {
     setSearchQuery(search);
   }
 
+  const handleBookmark = (news: News) => {
+    const storedBookmarks = localStorage.getItem("bookmarkNews");
+
+    const bookmarks: News[] = storedBookmarks ? JSON.parse(storedBookmarks) : [];
+
+    const alreadyBookmarked = bookmarks.some((bookmark) => {
+      return bookmark.id === news.id
+    });
+
+    if (alreadyBookmarked) {
+      const updatedBookmarks = bookmarks.filter((bookmark) => bookmark.id !== news.id);
+      localStorage.setItem("bookmarkNews", JSON.stringify(updatedBookmarks));
+      setBookmarks(updatedBookmarks);
+      return;
+    };
+
+    const updatedBookmarks = [...bookmarks, news];
+
+    localStorage.setItem("bookmarkNews", JSON.stringify(updatedBookmarks));
+    setBookmarks(updatedBookmarks);
+  }
+
   return (
     <div className="p-3">
       <input type="text"
@@ -91,10 +125,11 @@ const NewsPage = () => {
         <option value="science">Sceince</option>
         <option value="business">Business</option>
       </select>
+      <Link to={"/bookmarks"}>Bookmarks page</Link>
 
       <div className="grid grid-cols-1 justify-items-center gap-2 p-3 md:grid-cols-3 md:gap-3">
         {news.map((newsItem) => (
-          <NewsCard key={newsItem.id} news={newsItem} />
+          <NewsCard key={newsItem.id} news={newsItem} onBookmark={handleBookmark} isBookmarked={bookmarks.some((bookmark) => bookmark.id === newsItem.id)} />
         ))}
       </div>
       {isLoading && <p className="text-3xl text-red-500">Loading more news</p>}

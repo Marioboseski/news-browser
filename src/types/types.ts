@@ -12,4 +12,6 @@ export type News = {
 
 export type NewsCardProps = {
   news: News
+  onBookmark: (news: News) => void
+  isBookmarked: boolean
 }
