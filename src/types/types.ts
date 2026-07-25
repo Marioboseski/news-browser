@@ -15,3 +15,11 @@ export type NewsCardProps = {
   onBookmark: (news: News) => void
   isBookmarked: boolean
 }
+
+export type GuardianApi = {
+  section: string,
+  search: string,
+  fromDate: string,
+  toDate: string,
+  page: number
+}

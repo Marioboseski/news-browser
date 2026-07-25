@@ -1,11 +1,38 @@
 const url = `api/search`;
- const API_KEY = import.meta.env.VITE_API_KEY;
+const API_KEY = import.meta.env.VITE_API_KEY;
+import type { GuardianApi } from "../types/types";
 
-export const guardianApi = async (section: string, search: string, page: number) => {
-  const res = await fetch(`${url}?section=${section}&q=${search}&show-fields=thumbnail,trailText,byline&page=${page}&api-key=${API_KEY}`);
-  if(!res.ok) {
+export const guardianApi = async ({ section, search, fromDate, toDate, page }: GuardianApi) => {
+  const params = new URLSearchParams();
+
+  params.set("section", section);
+  params.set("page", page.toString());
+  params.set("api-key", API_KEY);
+  params.set("show-fields","thumbnail,trailText,byline");
+  params.set("page-size", "20");
+
+  if (search) {
+    params.set("q", search);
+  }
+
+  if (fromDate) {
+    params.set("from-date", fromDate);
+  }
+
+  if (toDate) {
+    params.set("to-date", toDate);
+  }
+
+  console.log(params.toString());
+
+  const res = await fetch(`${url}?${params.toString()}`);
+  const data = await res.json();
+
+  console.log(res.status);
+  console.log(data);
+
+  if (!res.ok) {
     throw new Error("Failed to fetch news");
   }
-  const data = await res.json();
   return data;
 }
