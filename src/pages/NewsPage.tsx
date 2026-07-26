@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { guardianApi } from "../api/guardianApi";
 import NewsCard from "../components/NewsCard";
+import NewsModal from "../components/NewsModal";
 import type { News } from "../types/types";
 import { Link } from "react-router-dom";
 
@@ -16,6 +17,7 @@ const NewsPage = () => {
   const [bookmarks, setBookmarks] = useState<News[]>([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [ selectedNews, setSelectedNews ] = useState<News | null>(null)
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -118,6 +120,10 @@ const NewsPage = () => {
     setBookmarks(updatedBookmarks);
   }
 
+  const handleOpenModal = (news: News) => {
+    setSelectedNews(news);
+  }
+
   return (
     <div className="p-3">
       <div className="flex flex-col justify-evenly items-center min-h-52">
@@ -152,13 +158,16 @@ const NewsPage = () => {
 
       <div className="grid grid-cols-1 justify-items-center gap-2 p-3 md:grid-cols-3 md:gap-3">
         {news.map((newsItem) => (
-          <NewsCard key={newsItem.id} news={newsItem} onBookmark={handleBookmark} isBookmarked={bookmarks.some((bookmark) => bookmark.id === newsItem.id)} />
+          <NewsCard key={newsItem.id} news={newsItem} onBookmark={handleBookmark} isBookmarked={bookmarks.some((bookmark) => bookmark.id === newsItem.id)} onClick={handleOpenModal} />
         ))}
       </div>
       {isLoading && <p className="text-3xl text-red-500">Loading more news</p>}
       {!hasMore && <p className=" text-center text-3xl text-red-500">No more news</p>}
       <div ref={loaderRef}>
       </div>
+      {selectedNews && (
+        <NewsModal news={selectedNews} onClose={() => setSelectedNews(null)} />
+      )}
     </div>
   );
 }

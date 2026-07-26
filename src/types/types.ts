@@ -14,6 +14,12 @@ export type NewsCardProps = {
   news: News
   onBookmark: (news: News) => void
   isBookmarked: boolean
+  onClick: (news: News) => void
+}
+
+export type NewsModalProps = {
+  news: News
+  onClose: () => void
 }
 
 export type GuardianApi = {
