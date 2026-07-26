@@ -2,7 +2,7 @@ const url = `api/search`;
 const API_KEY = import.meta.env.VITE_API_KEY;
 import type { GuardianApi } from "../types/types";
 
-export const guardianApi = async ({ section, search, fromDate, toDate, page }: GuardianApi) => {
+export const guardianApi = async ({ section, search, fromDate, toDate, orderBy, page }: GuardianApi) => {
   const params = new URLSearchParams();
 
   params.set("section", section);
@@ -10,6 +10,7 @@ export const guardianApi = async ({ section, search, fromDate, toDate, page }: G
   params.set("api-key", API_KEY);
   params.set("show-fields","thumbnail,trailText,byline");
   params.set("page-size", "20");
+  params.set("order-by", orderBy);
 
   if (search) {
     params.set("q", search);

@@ -17,7 +17,8 @@ const NewsPage = () => {
   const [bookmarks, setBookmarks] = useState<News[]>([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [ selectedNews, setSelectedNews ] = useState<News | null>(null)
+  const [ selectedNews, setSelectedNews ] = useState<News | null>(null);
+  const [ orderBy, setOrderBy ] = useState("newest");
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const NewsPage = () => {
 
       try {
         console.log("current page", page);
-        const data = await guardianApi({section, search: searchQuery, fromDate, toDate, page});
+        const data = await guardianApi({section, search: searchQuery, fromDate, toDate, orderBy, page});
         const results = data.response.results;
         console.log(results.length);
 
@@ -46,7 +47,7 @@ const NewsPage = () => {
       }
     }
     fetchNews();
-  }, [section, searchQuery, fromDate, toDate, page]);
+  }, [section, searchQuery, fromDate, toDate, orderBy, page]);
 
   useEffect(() => {
 
@@ -124,6 +125,13 @@ const NewsPage = () => {
     setSelectedNews(news);
   }
 
+  const handleOrderByChange = (orderBy: string) => {
+    setNews([]);
+    setPage(1);
+    setHasMore(true);
+    setOrderBy(orderBy);
+  }
+
   return (
     <div className="p-3">
       <div className="flex flex-col justify-evenly items-center min-h-52">
@@ -142,6 +150,12 @@ const NewsPage = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="border-2 border-gray-400 rounded-md p-1 w-full max-w-40" />
           <button onClick={handleSearch} className="border border-black rounded-md p-1">Search</button>
+
+          <select onChange={(e) => handleOrderByChange(e.target.value)}>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="relevance">Relevance</option>
+          </select>
         </div>
 
         <div className="flex justify-around items-center w-full">

@@ -27,5 +27,6 @@ export type GuardianApi = {
   search: string,
   fromDate: string,
   toDate: string,
+  orderBy: string,
   page: number
 }
