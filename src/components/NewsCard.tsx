@@ -7,7 +7,7 @@ const NewsCard = ({ news, onBookmark, isBookmarked, onClick }: NewsCardProps) =>
       <img src={news.fields.thumbnail} alt={news.webTitle} className="max-h-40 max-w-40" />
       <p>{news.fields.trailText}</p>
       <p className="font-semibold">{news.fields.byline}</p>
-      <Bookmark onClick={() => onBookmark(news)} fill={isBookmarked ? "black" : "white"} className="cursor-pointer" />
+      <Bookmark onClick={(e) => {e.stopPropagation(); onBookmark(news)}} fill={isBookmarked ? "black" : "white"} className="cursor-pointer" />
     </div>
   );
 }
