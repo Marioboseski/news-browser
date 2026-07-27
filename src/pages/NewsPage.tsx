@@ -4,6 +4,7 @@ import NewsCard from "../components/NewsCard";
 import NewsModal from "../components/NewsModal";
 import type { News } from "../types/types";
 import { Link } from "react-router-dom";
+import { getBookmarks, toggleBookmark } from "../utils/bookmarks";
 
 const NewsPage = () => {
 
@@ -17,8 +18,8 @@ const NewsPage = () => {
   const [bookmarks, setBookmarks] = useState<News[]>([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [ selectedNews, setSelectedNews ] = useState<News | null>(null);
-  const [ orderBy, setOrderBy ] = useState("newest");
+  const [selectedNews, setSelectedNews] = useState<News | null>(null);
+  const [orderBy, setOrderBy] = useState("newest");
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const NewsPage = () => {
 
       try {
         console.log("current page", page);
-        const data = await guardianApi({section, search: searchQuery, fromDate, toDate, orderBy, page});
+        const data = await guardianApi({ section, search: searchQuery, fromDate, toDate, orderBy, page });
         const results = data.response.results;
         console.log(results.length);
 
@@ -72,19 +73,17 @@ const NewsPage = () => {
   }, [isLoading, hasMore]);
 
   useEffect(() => {
-    const storedBookmarks = localStorage.getItem("bookmarkNews");
-    
-    if (!storedBookmarks) return;
-
-    const parsedBookmarks = JSON.parse(storedBookmarks);
-
-    setBookmarks(parsedBookmarks);
+    setBookmarks(getBookmarks());
   }, []);
 
-  const handleSectionChange = (section: string) => {
+  const resetNews = () => {
     setNews([]);
     setPage(1);
     setHasMore(true);
+  }
+
+  const handleSectionChange = (section: string) => {
+    resetNews();
     setSection(section);
     setSearch("");
     setSearchQuery("");
@@ -93,31 +92,12 @@ const NewsPage = () => {
   }
 
   const handleSearch = () => {
-    setNews([]);
-    setPage(1);
-    setHasMore(true);
+    resetNews();
     setSearchQuery(search);
   }
 
   const handleBookmark = (news: News) => {
-    const storedBookmarks = localStorage.getItem("bookmarkNews");
-
-    const bookmarks: News[] = storedBookmarks ? JSON.parse(storedBookmarks) : [];
-
-    const alreadyBookmarked = bookmarks.some((bookmark) => {
-      return bookmark.id === news.id
-    });
-
-    if (alreadyBookmarked) {
-      const updatedBookmarks = bookmarks.filter((bookmark) => bookmark.id !== news.id);
-      localStorage.setItem("bookmarkNews", JSON.stringify(updatedBookmarks));
-      setBookmarks(updatedBookmarks);
-      return;
-    };
-
-    const updatedBookmarks = [...bookmarks, news];
-
-    localStorage.setItem("bookmarkNews", JSON.stringify(updatedBookmarks));
+    const updatedBookmarks = toggleBookmark(news);
     setBookmarks(updatedBookmarks);
   }
 
@@ -126,9 +106,7 @@ const NewsPage = () => {
   }
 
   const handleOrderByChange = (orderBy: string) => {
-    setNews([]);
-    setPage(1);
-    setHasMore(true);
+    resetNews();
     setOrderBy(orderBy);
   }
 
@@ -161,11 +139,11 @@ const NewsPage = () => {
         <div className="flex justify-around items-center w-full">
           <input type="date"
             value={fromDate}
-             onChange={(e) => setFromDate(e.target.value)} />
+            onChange={(e) => setFromDate(e.target.value)} />
 
           <input type="date"
             value={toDate}
-             onChange={(e) => setToDate(e.target.value)} />
+            onChange={(e) => setToDate(e.target.value)} />
         </div>
         <Link to={"/bookmarks"} className=" text-lg border-b border-gray-500">See saved news</Link>
       </div>
