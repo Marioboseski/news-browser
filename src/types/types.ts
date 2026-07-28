@@ -1,7 +1,8 @@
 export type News = {
   id: string,
   webTitle: string,
-  webUrl: string
+  webUrl: string,
+  webPublicationDate: string,
 
   fields: {
     thumbnail: string,
