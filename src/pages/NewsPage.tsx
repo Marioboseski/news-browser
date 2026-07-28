@@ -20,17 +20,22 @@ const NewsPage = () => {
   const [toDate, setToDate] = useState("");
   const [selectedNews, setSelectedNews] = useState<News | null>(null);
   const [orderBy, setOrderBy] = useState("newest");
+  const [noResults, setNoResults] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const loaderRef = useRef<HTMLDivElement | null>(null);
+
 
   useEffect(() => {
     const fetchNews = async () => {
       setIsLoading(true);
+      setError(false);
 
       try {
-        console.log("current page", page);
         const data = await guardianApi({ section, search: searchQuery, fromDate, toDate, orderBy, page });
         const results = data.response.results;
-        console.log(results.length);
+
+        setNoResults(results.length === 0);
 
         if (data.response.currentPage >= data.response.pages) {
           setHasMore(false);
@@ -41,7 +46,10 @@ const NewsPage = () => {
         });
 
       } catch (error) {
-        console.error("Failed to fetch news:", error);
+        setError(true);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
 
       } finally {
         setIsLoading(false);
@@ -59,7 +67,6 @@ const NewsPage = () => {
 
       if (isLoading || !hasMore) return;
 
-      console.log("Observer fired");
       setPage((prevPage) => prevPage + 1);
     });
 
@@ -110,6 +117,11 @@ const NewsPage = () => {
     setOrderBy(orderBy);
   }
 
+  const handleRetry = () => {
+    resetNews();
+    setError(false);
+  }
+
   return (
     <div className="p-3">
       <div className="flex flex-col justify-evenly items-center min-h-52">
@@ -153,12 +165,23 @@ const NewsPage = () => {
           <NewsCard key={newsItem.id} news={newsItem} onBookmark={handleBookmark} isBookmarked={bookmarks.some((bookmark) => bookmark.id === newsItem.id)} onClick={handleOpenModal} />
         ))}
       </div>
-      {isLoading && <p className="text-3xl text-red-500">Loading more news</p>}
-      {!hasMore && <p className=" text-center text-3xl text-red-500">No more news</p>}
+      {isLoading && <p className="text-3xl text-red-500 text-center">Loading more news</p>}
+      {!error && !hasMore && news.length > 0 && <p className=" text-center text-3xl text-red-500">No more news</p>}
       <div ref={loaderRef}>
       </div>
+      {error && (
+        <div className="flex flex-col justify-center items-center text-center">
+          <p className="text-red-500 text-lg">{errorMessage}</p>
+          <button onClick={handleRetry} className="border-2 border-gray-500 rounded-md p-1 w-full max-w-44">Retry</button>
+        </div>
+      )}
       {selectedNews && (
         <NewsModal news={selectedNews} onClose={() => setSelectedNews(null)} />
+      )}
+      {!error && noResults && (
+        <p className="text-center text-3xl text-red-500">
+          No results found
+        </p>
       )}
     </div>
   );

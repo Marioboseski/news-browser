@@ -24,16 +24,16 @@ export const guardianApi = async ({ section, search, fromDate, toDate, orderBy, 
     params.set("to-date", toDate);
   }
 
-  console.log(params.toString());
-
   const res = await fetch(`${url}?${params.toString()}`);
   const data = await res.json();
 
-  console.log(res.status);
-  console.log(data);
+  if (res.status === 429) {
+    throw new Error("Too many requests. Please try again later.");
+  }
 
   if (!res.ok) {
-    throw new Error("Failed to fetch news");
+    throw new Error("Failed to load news. Please try again.");
   }
+
   return data;
 }
