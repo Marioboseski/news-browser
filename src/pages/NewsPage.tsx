@@ -149,13 +149,19 @@ const NewsPage = () => {
         </div>
 
         <div className="flex justify-around items-center w-full">
-          <input type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)} />
+          <div className="flex flex-col text-center">
+            <label className="border-b border-gray-600 font-semibold">From Date</label>
+            <input type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)} />
+          </div>
 
-          <input type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)} />
+          <div className="flex flex-col text-center">
+            <label className="border-b border-gray-600 w-full font-semibold">To Date</label>
+            <input type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)} />
+          </div>
         </div>
         <Link to={"/bookmarks"} className=" text-lg border-b border-gray-500">See saved news</Link>
       </div>
