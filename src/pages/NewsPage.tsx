@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { guardianApi } from "../api/guardianApi";
 import NewsCard from "../components/NewsCard";
 import NewsModal from "../components/NewsModal";
-import type { News } from "../types/types";
+import type { News, SavedSearch } from "../types/types";
 import { Link } from "react-router-dom";
 import { getBookmarks, toggleBookmark } from "../utils/bookmarks";
+import { getSavedSearches, saveSearches } from "../utils/savedSearches";
+import SavedSearches from "../components/SavedSearches";
 
 const NewsPage = () => {
 
@@ -15,6 +17,7 @@ const NewsPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [ savedSearches, setSavedSearches ] = useState(getSavedSearches());
   const [bookmarks, setBookmarks] = useState<News[]>([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -103,6 +106,41 @@ const NewsPage = () => {
     setSearchQuery(search);
   }
 
+  const handleSaveSearch = () => {
+    const searches = getSavedSearches();
+
+    const newSearch = {
+      id: crypto.randomUUID(),
+      query: searchQuery,
+      section,
+      fromDate,
+      toDate,
+      orderBy,
+    };
+
+    const updatedSearches = ([...searches, newSearch]);
+    saveSearches(updatedSearches);
+    setSavedSearches(updatedSearches);
+  }
+
+  const handleApplySearch = ({query, section, fromDate, toDate, orderBy}: SavedSearch) => {
+    resetNews();
+    setSearch(query);
+    setSearchQuery(query);
+    setSection(section);
+    setFromDate(fromDate);
+    setToDate(toDate);
+    setOrderBy(orderBy);
+  } 
+
+  const handleDeleteSearch = (searches: SavedSearch) => {
+    const updatedSavedSearches = savedSearches.filter(savedSearch => (
+      savedSearch.id !== searches.id
+    ));
+    saveSearches(updatedSavedSearches);
+    setSavedSearches(updatedSavedSearches);
+  }
+
   const handleBookmark = (news: News) => {
     const updatedBookmarks = toggleBookmark(news);
     setBookmarks(updatedBookmarks);
@@ -123,11 +161,11 @@ const NewsPage = () => {
   }
 
   return (
-    <div className="p-3">
+    <div className="p-2">
       <div className="flex flex-col justify-evenly items-center min-h-52">
 
         <div className="flex gap-3">
-          <select onChange={(e) => handleSectionChange(e.target.value)}>
+          <select value={section} onChange={(e) => handleSectionChange(e.target.value)}>
             <option value="technology">Techology</option>
             <option value="sport">Sport</option>
             <option value="science">Sceince</option>
@@ -140,8 +178,9 @@ const NewsPage = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="border-2 border-gray-400 rounded-md p-1 w-full max-w-40" />
           <button onClick={handleSearch} className="border border-black rounded-md p-1">Search</button>
+          <button onClick={handleSaveSearch} className="border-2 border-black rounded-md p-1">Save search</button>
 
-          <select onChange={(e) => handleOrderByChange(e.target.value)}>
+          <select value={orderBy} onChange={(e) => handleOrderByChange(e.target.value)}>
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
             <option value="relevance">Relevance</option>
@@ -166,6 +205,8 @@ const NewsPage = () => {
         <Link to={"/bookmarks"} className=" text-lg border-b border-gray-500">See saved news</Link>
       </div>
 
+      <SavedSearches savedSearches={savedSearches} onApply={handleApplySearch} onDelete={handleDeleteSearch} />
+
       <div className="grid grid-cols-1 justify-items-center gap-2 p-3 md:grid-cols-3 md:gap-3">
         {news.map((newsItem) => (
           <NewsCard key={newsItem.id} news={newsItem} onBookmark={handleBookmark} isBookmarked={bookmarks.some((bookmark) => bookmark.id === newsItem.id)} onClick={handleOpenModal} />
@@ -178,7 +219,7 @@ const NewsPage = () => {
       {error && (
         <div className="flex flex-col justify-center items-center text-center">
           <p className="text-red-500 text-lg">{errorMessage}</p>
-          <button onClick={handleRetry} className="border-2 border-gray-500 rounded-md p-1 w-full max-w-44">Retry</button>
+          <button onClick={handleRetry} className="border-2 border-gray-500 rounded-md p-1 w-full max-w-44 hover:bg-gray-300">Retry</button>
         </div>
       )}
       {selectedNews && (

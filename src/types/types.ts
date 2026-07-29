@@ -31,3 +31,18 @@ export type GuardianApi = {
   orderBy: string,
   page: number
 }
+
+export type SavedSearch = {
+  id: string,
+  query: string,
+  section: string,
+  fromDate: string,
+  toDate: string,
+  orderBy: string,
+}
+
+export type SavedSearchesProps = {
+  savedSearches: SavedSearch[],
+  onApply: (search: SavedSearch) => void,
+  onDelete: (search: SavedSearch) => void
+}

@@ -1,9 +1,9 @@
 import type { News } from "../types/types";
 
-const BOOKMARK_KEY = "bookmarkNews";
+const bookmarkNews = "bookmarkNews";
 
 export const getBookmarks = (): News[] => {
-  const storedBookmarks = localStorage.getItem(BOOKMARK_KEY);
+  const storedBookmarks = localStorage.getItem(bookmarkNews);
 
   if (!storedBookmarks) {
     return [];
@@ -13,7 +13,7 @@ export const getBookmarks = (): News[] => {
 }
 
 export const saveBookmarks = (bookmarks: News[]) => {
-  localStorage.setItem(BOOKMARK_KEY, JSON.stringify(bookmarks));
+  localStorage.setItem(bookmarkNews, JSON.stringify(bookmarks));
 }
 
 export const toggleBookmark = (news: News): News[] => {
