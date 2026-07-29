@@ -17,7 +17,7 @@ const NewsPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [ savedSearches, setSavedSearches ] = useState(getSavedSearches());
+  const [savedSearches, setSavedSearches] = useState(getSavedSearches());
   const [bookmarks, setBookmarks] = useState<News[]>([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -36,7 +36,7 @@ const NewsPage = () => {
 
       try {
         const data = await guardianApi({ section, search: searchQuery, fromDate, toDate, orderBy, page });
-        const results = data.response.results;
+        const results: News[] = data.response.results;
 
         setNoResults(results.length === 0);
 
@@ -45,7 +45,14 @@ const NewsPage = () => {
         }
 
         setNews((prevNews) => {
-          return [...prevNews, ...results];
+          const merged = [...prevNews, ...results];
+
+          const unique = merged.filter(
+            (item, index, array) =>
+              index === array.findIndex((index) => index.id === item.id)
+          );
+
+          return unique;
         });
 
       } catch (error) {
@@ -123,7 +130,7 @@ const NewsPage = () => {
     setSavedSearches(updatedSearches);
   }
 
-  const handleApplySearch = ({query, section, fromDate, toDate, orderBy}: SavedSearch) => {
+  const handleApplySearch = ({ query, section, fromDate, toDate, orderBy }: SavedSearch) => {
     resetNews();
     setSearch(query);
     setSearchQuery(query);
@@ -131,7 +138,7 @@ const NewsPage = () => {
     setFromDate(fromDate);
     setToDate(toDate);
     setOrderBy(orderBy);
-  } 
+  }
 
   const handleDeleteSearch = (searches: SavedSearch) => {
     const updatedSavedSearches = savedSearches.filter(savedSearch => (
