@@ -171,27 +171,32 @@ const NewsPage = () => {
     <div className="p-2">
       <div className="flex flex-col justify-evenly items-center min-h-52">
 
-        <div className="flex gap-3">
-          <select value={section} onChange={(e) => handleSectionChange(e.target.value)}>
-            <option value="technology">Techology</option>
-            <option value="sport">Sport</option>
-            <option value="science">Sceince</option>
-            <option value="business">Business</option>
-          </select>
+        <div className="flex flex-col justify-center items-center gap-3">
+          <div className="flex justify-center items-center gap-2">
+            <select value={section} onChange={(e) => handleSectionChange(e.target.value)}>
+              <option value="technology">Techology</option>
+              <option value="sport">Sport</option>
+              <option value="science">Sceince</option>
+              <option value="business">Business</option>
+            </select>
 
-          <input type="text"
-            value={search}
-            placeholder="Search"
-            onChange={(e) => setSearch(e.target.value)}
-            className="border-2 border-gray-400 rounded-md p-1 w-full max-w-40" />
-          <button onClick={handleSearch} className="border border-black rounded-md p-1">Search</button>
-          <button onClick={handleSaveSearch} className="border-2 border-black rounded-md p-1">Save search</button>
+            <input type="text"
+              value={search}
+              placeholder="Search"
+              onChange={(e) => setSearch(e.target.value)}
+              className="border-2 border-gray-400 rounded-md p-1 w-full max-w-40" />
+            <button onClick={handleSearch} className="border border-black rounded-md p-1 hover:bg-black hover:text-white">Search</button>
+            <button onClick={handleSaveSearch} className="border-2 border-black rounded-md p-1 duration-200 hover:scale-105">Save search</button>
+          </div>
 
+          <div className="flex flex-col justify-center items-center">
+            <label className="border-b border-gray-600">Order By</label>
           <select value={orderBy} onChange={(e) => handleOrderByChange(e.target.value)}>
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
             <option value="relevance">Relevance</option>
           </select>
+          </div>
         </div>
 
         <div className="flex justify-around items-center w-full">
