@@ -1,4 +1,4 @@
-const url = `api/search`;
+const url = `https://content.guardianapis.com/search`;
 const API_KEY = import.meta.env.VITE_API_KEY;
 import type { GuardianApi } from "../types/types";
 
